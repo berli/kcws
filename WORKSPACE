@@ -11,13 +11,15 @@ new_http_archive(
     build_file = "BUILD.boost",
     type = "tar.bz2",
     strip_prefix = "boost_1_64_0/",
+    #sha256 = "a547bd06c2fd9a71ba1d169d9cf0339da7ebf4753849a8f7d6fdb8feee99b640",
     sha256 = "7bcc5caace97baa948931d712ea5f37038dbb1c5d89b43ad4def4ed7cb683332",
 )
 
 
 new_http_archive(
    name="tf",
-   url = "http://ojsyioumh.bkt.clouddn.com/tf_dist_1.0.0alpha_3.zip",
+   #url = "http://ojsyioumh.bkt.clouddn.com/tf_dist_1.0.0alpha_3.zip",
+   url = "http://mmgr.myapp.com/myapp/gjbig/test/tf_dist_1.0.0alpha_3.zip",
    strip_prefix = "tf_dist/",
    sha256 = "91d607120d37ff2e3483922179611dc3894ae23d107f8f21cec7ac8b3c97fe25",
    build_file="BUILD.tf_dist",
