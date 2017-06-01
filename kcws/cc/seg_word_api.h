@@ -22,11 +22,16 @@
 
 using namespace std;
 
+struct segInfo
+{
+   string pos;
+   string tok;
+};
+
 struct wordsInfo
 {
    string sentence;
-   string pos;
-   string tok;
+   vector<segInfo>vecSeg;
 };
 
 class SegWord

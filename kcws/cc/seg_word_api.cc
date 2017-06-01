@@ -13,28 +13,26 @@
 
 SegWord::SegWord()
 {
+   cpTagger = NULL;
 }
 
 SegWord::~SegWord()
 { 
-   if(cpTagger)
-      delete cpTagger;
-      
 }
 
 int SegWord::initModel(const string&asWordVocab, const string&asPosModelPath,const string&asPosVocabpath, const int&aiMaxWordNum, const string&asModelPath, const string&asVocabPath,const int&aiMaxSentenceLen, const string&asUserDictPath)
 {
-   cout<<"LoadModel ..."<<endl;
+   LOG(INFO)<<"LoadModel ..."<<endl;
    bool lbRet = coModel.LoadModel(asModelPath,
                         asVocabPath,
                         aiMaxSentenceLen,
                         asUserDictPath);
   if(!lbRet)
   {
-    cout<<"LoadModel failed"<<endl;
+    LOG(INFO)<<"LoadModel failed"<<endl;
     return -1;
   }
-  cout<<"LoadModel OK..."<<endl;
+  LOG(INFO)<<"LoadModel OK..."<<endl;
 
   if (!asPosModelPath.empty()) 
   {
@@ -42,7 +40,7 @@ int SegWord::initModel(const string&asWordVocab, const string&asPosModelPath,con
        delete cpTagger;
 
     cpTagger = new kcws::PosTagger;
-    cout<<"Load pos model ..."<<endl;
+    LOG(INFO)<<"Load pos model ..."<<endl;
     lbRet = cpTagger->LoadModel(asPosModelPath,
                             asWordVocab,
                             asVocabPath,
@@ -52,7 +50,7 @@ int SegWord::initModel(const string&asWordVocab, const string&asPosModelPath,con
   }
   else
   {
-     cout<<"LoadModel OK..."<<endl;
+     LOG(INFO)<<"LoadModel OK..."<<endl;
      return -2;
   }
 
@@ -61,23 +59,29 @@ int SegWord::initModel(const string&asWordVocab, const string&asPosModelPath,con
 
 int SegWord::eval(const vector<string>&aVecSentence, vector<wordsInfo>&aVecSeg)
 {
+  LOG(INFO)<<"eval..."<<endl;
   for(size_t i = 0; i < aVecSentence.size(); i++)
   {
       std::vector<std::string> result;
       std::vector<std::string> tags;
       if (coModel.Segment(aVecSentence[i], &result, &tags)) 
       {
+        LOG(INFO)<<aVecSentence[i]<<" result size:"<<result.size()<<" tags size:"<<tags.size()<<endl;
         if (result.size() == tags.size()) 
         {
           int nl = result.size();
-          for (int i = 0; i < nl; i++) 
+          wordsInfo words;
+          words.sentence = aVecSentence[i];
+          for (int j = 0; j < nl; j++) 
           { 
-            wordsInfo words;
-            words.sentence = aVecSentence[i];
-            words.pos = tags[i];
-            words.tok = result[i];
-            aVecSeg.push_back(words);
+            segInfo lseg;
+            lseg.pos = tags[j];
+            lseg.tok = result[j];
+            words.vecSeg.push_back(lseg);
+           
+            LOG(INFO)<<"pos:"<<lseg.pos<<" tok:"<<lseg.tok<<endl;
           }//for
+          aVecSeg.push_back(words);
         }//if
       }//if
       else

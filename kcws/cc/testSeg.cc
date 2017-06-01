@@ -4,7 +4,6 @@
 
 int main(int argc, char* argv[])
 {
-  tensorflow::port::InitMain(argv[0], &argc, &argv);
    SegWord loSeg;
    string asWordVocab ="kcws/models/word_vocab.txt"; 
    string asPosModelPath = "kcws/models/pos_model.pbtxt";
@@ -16,17 +15,21 @@ int main(int argc, char* argv[])
    string asUserDictPath = "";
 
    int liRet  = loSeg.initModel(asWordVocab, asPosModelPath,asPosVocabpath, aiMaxWordNum, asModelPath, asVocabPath,aiMaxSentenceLen, asUserDictPath);
-   cout<<"initModel:"<<liRet<<endl;
+   LOG(INFO)<<"initModel:"<<liRet<<endl;
  
    vector<string>lVecSentence;
    for(int i =1; i <argc; i++)
    { 
-     cout<<argv[i]<<endl;
+     LOG(INFO)<<argv[i]<<endl;
      lVecSentence.push_back(argv[i]);
    }
 
    vector<wordsInfo>lVecSeg;
    liRet = loSeg.eval(lVecSentence, lVecSeg);
    for(size_t i = 0; i < lVecSeg.size(); i++)
-      cout<<lVecSeg[i].sentence<<" tok="<<lVecSeg[i].tok<<" pos="<<lVecSeg[i].pos<<endl;
+   {
+      LOG(INFO)<<lVecSeg[i].sentence;
+      for(size_t j =0; j < lVecSeg[i].vecSeg.size();j++)
+          LOG(INFO)<<" tok="<<lVecSeg[i].vecSeg[j].tok<<" pos="<<lVecSeg[i].vecSeg[j].pos<<endl;
+   }
 }
