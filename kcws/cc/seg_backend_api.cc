@@ -38,7 +38,9 @@ class SegMiddleware {
   void after_handle(crow::request& req, crow::response& res, context& ctx) {}
  private:
 };
-int main(int argc, char* argv[]) {
+
+int main(int argc, char* argv[]) 
+{
   tensorflow::port::InitMain(argv[0], &argc, &argv);
   google::ParseCommandLineFlags(&argc, &argv, true);
   crow::App<SegMiddleware> app;
@@ -48,7 +50,8 @@ int main(int argc, char* argv[]) {
                         FLAGS_max_sentence_len,
                         FLAGS_user_dict_path))
       << "Load model error";
-  if (!FLAGS_pos_model_path.empty()) {
+  if (!FLAGS_pos_model_path.empty()) 
+  {
     kcws::PosTagger* tagger = new kcws::PosTagger;
     CHECK(tagger->LoadModel(FLAGS_pos_model_path,
                             FLAGS_word_vocab_path,
@@ -58,46 +61,61 @@ int main(int argc, char* argv[]) {
     model.SetPosTagger(tagger);
   }
   CROW_ROUTE(app, "/tf_seg/api").methods("POST"_method)
-  ([&model](const crow::request & req) {
+  ([&model](const crow::request & req) 
+  {
     jsonxx::Object obj;
     int status = -1;
     std::string desc = "OK";
     std::string gotReqBody = req.body;
-    VLOG(0) << "got body:";
-    fprintf(stderr, "%s\n", gotReqBody.c_str());
+    //VLOG(0) << "got body:";
+    LOG(INFO) << "got body:";
+    LOG(INFO)<<gotReqBody.c_str();
+
     jsonxx::Object toRet;
-    if (obj.parse(gotReqBody) && obj.has<std::string>("sentence")) {
+    if (obj.parse(gotReqBody) && obj.has<std::string>("sentence")) 
+    {
       std::string sentence = obj.get<std::string>("sentence");
       std::vector<std::string> result;
       std::vector<std::string> tags;
-      if (model.Segment(sentence, &result, &tags)) {
+      if (model.Segment(sentence, &result, &tags)) 
+      {
         status = 0;
         jsonxx::Array rarr;
-        if (result.size() == tags.size()) {
+        if (result.size() == tags.size()) 
+        {
           int nl = result.size();
-          for (int i = 0; i < nl; i++) {
+          for (int i = 0; i < nl; i++) 
+          {
             jsonxx::Object obj;
             obj << "tok" << result[i];
             obj << "pos" << tags[i];
             rarr << obj;
           }
-        } else {
-          for (std::string str : result) {
+        } 
+        else 
+        {
+          for (std::string str : result) 
+          {
             rarr << str;
           }
         }
         toRet << "segments" << rarr;
       }
-    } else {
+    } 
+    else 
+    {
       desc = "Parse request error";
     }
     toRet << "status" << status;
     toRet << "msg" << desc;
+    LOG(INFO)<<toRet.json();
     return crow::response(toRet.json());
   });
-  CROW_ROUTE(app, "/")([](const crow::request & req) {
+  CROW_ROUTE(app, "/")([](const crow::request & req) 
+  {
     return crow::response(std::string(reinterpret_cast<char*>(&kcws_cc_demo_html[0]), kcws_cc_demo_html_len));
   });
   app.port(FLAGS_port).multithreaded().run();
   return 0;
 }
+

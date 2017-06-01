@@ -163,6 +163,63 @@ cc_binary(
     ],
 )
 
+#test
+cc_binary(
+    name = "seg_api",
+    srcs = [
+        "seg_word_api.cc",
+    ],
+    linkopts = ["-ldl"],
+    deps = [
+        ":tf_seg_model",
+    ],
+)
+
+cc_binary(
+    name = "seg_api_test",
+    srcs = [
+        "testSeg.cc",
+    ],
+    copts = [
+        "-g",
+        "-std=c++11",
+    ],
+    linkopts = [
+        "-ldl",
+        "-lpthread",
+    ],
+  #deps=[
+  # '//utils:basic_string_util',
+  # '//utils:basic_vocab',
+  # ':pos_tagger',
+  # ':sentence_breaker',
+  # '@tf//:tensorflow',
+  # '@protobuf//:protobuf',
+  #],
+    deps = [
+        ":tf_seg_model",
+        ":seg_word_api",
+    ],
+)
+
+cc_library(
+    name = "seg_word_api",
+    hdrs=[
+    "seg_word_api.h"
+    ],
+    srcs = [
+        "seg_word_api.cc",
+    ],
+    linkopts = [
+        "-ldl",
+        "-lpthread",
+    ],
+    deps = [
+        ":tf_seg_model",
+    ],
+)
+#end test
+
 cc_library(
     name = "ac_scanner",
     srcs = [

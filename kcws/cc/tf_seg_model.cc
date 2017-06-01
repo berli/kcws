@@ -260,11 +260,13 @@ bool TfSegModel::LoadModel(const std::string& modelPath,
   for (int i = 0; i < maxSentenceLen; i++) {
     bp_[i] = new int[num_tags_];
   }
+  LOG(INFO)<<"load user dict...";
   if (!userDictPath.empty()) {
     CHECK(loadUserDict(userDictPath))
         << "load user dict error from path:"
         << userDictPath;
   }
+  LOG(INFO)<<"load model done...";
   return true;
 }
 
