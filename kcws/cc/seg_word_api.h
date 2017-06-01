@@ -15,10 +15,8 @@
 #include <thread>
 #include <memory>
 
-#include "utils/basic_string_util.h"
 #include "kcws/cc/tf_seg_model.h"
 #include "kcws/cc/pos_tagger.h"
-#include "tensorflow/core/platform/init_main.h"
 
 using namespace std;
 
