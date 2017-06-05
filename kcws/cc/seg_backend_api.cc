@@ -20,14 +20,18 @@
 #include "third_party/crow/include/crow.h"
 #include "tensorflow/core/platform/init_main.h"
 
+#define MAX_SEN_LEN 80
+
 DEFINE_int32(port, 9090, "the  api serving binding port");
-DEFINE_string(model_path, "kcws/models/seg_model.pbtxt", "the model path");
-DEFINE_string(vocab_path, "kcws/models/basic_vocab.txt", "char vocab path");
-DEFINE_string(pos_model_path, "kcws/models/pos_model.pbtxt", "the pos tagging model path");
-DEFINE_string(word_vocab_path, "kcws/models/word_vocab.txt", "word vocab path");
-DEFINE_string(pos_vocab_path, "kcws/models/pos_vocab.txt", "pos vocab path");
-DEFINE_int32(max_sentence_len, 80, "max sentence len ");
+DEFINE_string(model_path, "models/seg_model.pbtxt", "the model path");
+DEFINE_string(vocab_path, "models/basic_vocab.txt", "char vocab path");
+DEFINE_string(pos_model_path, "models/pos_model.pbtxt", "the pos tagging model path");
+DEFINE_string(word_vocab_path, "models/word_vocab.txt", "word vocab path");
+DEFINE_string(pos_vocab_path, "models/pos_vocab.txt", "pos vocab path");
+//DEFINE_int32(max_sentence_len, 80, "max sentence len ");
+DEFINE_int32(max_sentence_len, MAX_SEN_LEN, "max sentence len ");
 DEFINE_string(user_dict_path, "", "user dict path");
+//DEFINE_int32(max_word_num, 50, "max num of word per sentence ");
 DEFINE_int32(max_word_num, 50, "max num of word per sentence ");
 class SegMiddleware {
  public:
@@ -67,12 +71,12 @@ int main(int argc, char* argv[])
     int status = -1;
     std::string desc = "OK";
     std::string gotReqBody = req.body;
-    //VLOG(0) << "got body:";
     LOG(INFO) << "got body:";
     LOG(INFO)<<gotReqBody.c_str();
+    LOG(INFO) << "body len:"<<gotReqBody.size();
 
     jsonxx::Object toRet;
-    if (obj.parse(gotReqBody) && obj.has<std::string>("sentence")) 
+    if (gotReqBody.size() <= MAX_SEN_LEN && obj.parse(gotReqBody) && obj.has<std::string>("sentence")) 
     {
       std::string sentence = obj.get<std::string>("sentence");
       std::vector<std::string> result;
@@ -104,13 +108,26 @@ int main(int argc, char* argv[])
     } 
     else 
     {
-      desc = "Parse request error";
+      if( gotReqBody.size() > MAX_SEN_LEN)
+      {
+          status = 1;
+          desc = "sencent len: ";
+	  desc += std::to_string(gotReqBody.size());
+          desc += " is more than ";
+	  desc += std::to_string(MAX_SEN_LEN);
+      }
+      else
+      {
+          status = -1;
+          desc = "Parse request error";
+      }
     }
     toRet << "status" << status;
     toRet << "msg" << desc;
     LOG(INFO)<<toRet.json();
     return crow::response(toRet.json());
   });
+
   CROW_ROUTE(app, "/")([](const crow::request & req) 
   {
     return crow::response(std::string(reinterpret_cast<char*>(&kcws_cc_demo_html[0]), kcws_cc_demo_html_len));
