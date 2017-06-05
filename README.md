@@ -16,10 +16,7 @@
 
 ### 训练
 
-1. 关注待字闺中公众号 回复 kcws 获取语料下载地址：
-   
-   ![logo](https://github.com/koth/kcws/blob/master/docs/qrcode_dzgz.jpg?raw=true "待字闺中")
-   
+1. 加q群469331966  获取语料下载地址：
    
 2. 解压语料到一个目录
 
@@ -84,12 +81,7 @@ https://github.com/koth/kcws/blob/master/pos_train.md
 
 权重为一个正整数，一般4以上，越大越重要
  
-### demo
-http://45.32.100.248:9090/
 
-附： 使用相同模型训练的公司名识别demo:
-
-http://45.32.100.248:18080
 
 
 
