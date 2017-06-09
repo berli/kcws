@@ -153,13 +153,32 @@ cc_binary(
     srcs = [
         "seg_backend_api.cc",
     ],
+    copts = [
+    #    "-g",
+        "-std=c++11",
+    ],
     linkopts = ["-ldl"],
     deps = [
         ":demo_html",
+        ":config_xml",
         ":tf_seg_model",
         "//base",
         "//third_party/crow",
         "//utils:jsonxx",
+    ],
+)
+
+cc_library(
+    name = "config_xml",
+    hdrs=[
+    "tinyxml2.h"
+    ],
+    srcs = [
+        "tinyxml2.cc",
+    ],
+    linkopts = [
+        "-ldl",
+        "-lpthread",
     ],
 )
 

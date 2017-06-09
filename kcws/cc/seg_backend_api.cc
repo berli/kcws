@@ -10,7 +10,9 @@
 #include <string>
 #include <thread>
 #include <memory>
+#include <fstream>
 
+#include "tinyxml2.h"
 #include "base/base.h"
 #include "utils/jsonxx.h"
 #include "utils/basic_string_util.h"
@@ -21,6 +23,8 @@
 #include "tensorflow/core/platform/init_main.h"
 
 #define MAX_SEN_LEN 80
+using namespace std;
+using namespace tinyxml2;
 
 DEFINE_int32(port, 9090, "the  api serving binding port");
 DEFINE_string(model_path, "models/seg_model.pbtxt", "the model path");
@@ -28,6 +32,7 @@ DEFINE_string(vocab_path, "models/basic_vocab.txt", "char vocab path");
 DEFINE_string(pos_model_path, "models/pos_model.pbtxt", "the pos tagging model path");
 DEFINE_string(word_vocab_path, "models/word_vocab.txt", "word vocab path");
 DEFINE_string(pos_vocab_path, "models/pos_vocab.txt", "pos vocab path");
+DEFINE_string(config_path, "config.xml", "config param, such as listen port");
 //DEFINE_int32(max_sentence_len, 80, "max sentence len ");
 DEFINE_int32(max_sentence_len, MAX_SEN_LEN, "max sentence len ");
 DEFINE_string(user_dict_path, "", "user dict path");
@@ -42,6 +47,48 @@ class SegMiddleware {
   void after_handle(crow::request& req, crow::response& res, context& ctx) {}
  private:
 };
+
+/*
+<seg_backend_api>
+<port>
+</port>
+</seg_backend_api>
+*/
+int getConfig()
+{
+    XMLDocument doc;
+    doc.LoadFile( FLAGS_config_path.c_str() );
+    if( doc.ErrorID() != 0)
+    {
+        return -1;
+    }
+    const char *port = doc.FirstChildElement("seg_backend_api")->FirstChildElement("port")->GetText();
+    FLAGS_port = atoi(port);
+    if( FLAGS_port == 0)
+       FLAGS_port = 9090;
+    LOG(INFO)<<"port:"<<FLAGS_port;
+
+    return 0;
+/*
+    ifstream ifr(FLAGS_config_path.c_str());
+    if(!ifr)
+    {
+       LOG(ERROR)<<"can't open "<<FLAGS_config_path;
+       return -1;
+    }
+    string lsline;
+    while(getline(ifr,lsline))
+    {
+       int liPos = lsline.find("port=");
+       if(liPos != -1 )
+       {
+          FLAGS_port = atoi(lsline.substr(liPos + 5).c_str());
+	  return 0;
+       }
+    }
+    return -1;
+*/
+}
 
 int main(int argc, char* argv[]) 
 {
@@ -104,7 +151,7 @@ int main(int argc, char* argv[])
           }
         }
         toRet << "segments" << rarr;
-      }
+      }//if(model.
     } 
     else 
     {
@@ -132,6 +179,7 @@ int main(int argc, char* argv[])
   {
     return crow::response(std::string(reinterpret_cast<char*>(&kcws_cc_demo_html[0]), kcws_cc_demo_html_len));
   });
+  getConfig();
   app.port(FLAGS_port).multithreaded().run();
   return 0;
 }
